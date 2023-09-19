@@ -36,7 +36,6 @@ export default function Formulaire() {
     Travaux: "Mail envoyer à Travaux@simplonville.co",
     Accident: "Mail envoyer à Accident@simplonville.co",
     Animaux: "Mail envoyer à Animaux@simplonville.co",
-    // Ajoutez des messages pour les autres options si nécessaire
   };
 
   
