@@ -49,7 +49,16 @@ export default function FormInput({
           <Picker.Item label="Accident" value="Accident" />
           <Picker.Item label="Animaux" value="Animaux" />
         </Picker>
-      ) : (
+      ) : inputType === "map" ? (
+        <TextInput
+          style={styles.input}
+          value={label}
+          onChangeText={onChangeText}
+          keyboardType={inputType === "number" ? "numeric" : "default"}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          editable={keyboardType !== "picker"}
+        />) : (
         <TextInput
           style={styles.input}
           value={value}

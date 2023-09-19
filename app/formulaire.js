@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useState, useEffect, useRef} from "react";
+import { View, StyleSheet, Text} from "react-native";
 import Button from "../components/Button";
 import FormInput from "../components/FormInput"; 
 import { ScrollView } from 'react-native';
 import ImageViewer from '../components/ImageViewer';
 import MapView from 'react-native-maps';
-import { Camera } from 'expo-camera';
 import CameraScreen from "../components/CameraScreen";
 
 
@@ -22,13 +21,10 @@ export default function Formulaire() {
   const [dateHeure, setDateHeure] = useState(new Date());
   const [date, setDate] = useState(""); // Champ pour la date
   const [heure, setHeure] = useState(""); // Champ pour l'heure
+  const [coordinate, setCoordinate] = useState({ latitude: "", longitude: "" });
+
 
   const PlaceholderImage = require('../assets/images/formulaire.png');
-
-  const hideDatePicker = () => {
-    setDatePickerVisible(false);
-  };
-
 
   const alertMessages = {
     Voirie: "Mail envoyer à voirie@simplonville.co",
@@ -117,6 +113,15 @@ export default function Formulaire() {
     setDate(formattedDate);
   };
 
+  // Définissez une référence à la carte
+const mapRef = useRef(null);
+
+  // Fonction pour gérer le clic sur la carte
+const handleMapPress = (event) => {
+  const { latitude, longitude } = event.nativeEvent.coordinate;
+  setCoordinate({ latitude, longitude });
+  console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+};
 
   return (
     <ScrollView style={styles.container}>
@@ -130,9 +135,24 @@ export default function Formulaire() {
 
       <FormInput label="Choisissez une alerte :" keyboardType="picker" selectedOption={selectedOption} onOptionChange={handleOptionChange} />
       <View style={styles.mapContainer}>
-        <MapView style={styles.map} />
+      <MapView
+    ref={mapRef}
+    style={styles.map}
+    initialRegion={{
+      latitude: 37.78825,
+      longitude: -122.4324,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    }}
+    onPress={handleMapPress} // Ajoutez cet événement
+  />
       </View>
-
+      
+      <Text style={styles.label}>Latitude :</Text>
+      <Text style={styles.dateHeureText}>{coordinate.latitude}</Text>
+      <Text style={styles.label}>Longitude :</Text>
+      <Text style={styles.dateHeureText}>{coordinate.longitude}</Text>
+      
       <CameraScreen/>
 
       <FormInput label="Message :" value={message} onChangeText={setMessage} multiline={true} numberOfLines={4} />
@@ -197,5 +217,9 @@ const styles = StyleSheet.create({
   map: {
     width: "80%",
     height: 300,
+  },
+  coordinatesText: {
+    fontSize: 16,
+    marginTop: 10,
   },
 });

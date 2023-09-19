@@ -43,7 +43,7 @@ export default function CameraScreen() {
     const cameraHeight = 300;
    
     return (
-      <View style={[{ flex: 1 },{height: cameraHeight}]}>
+      <View style={[styles.camera, { height: cameraHeight }]}>
         <Camera
           style={{ flex: 1 }}
           type={type}
@@ -51,10 +51,10 @@ export default function CameraScreen() {
         >
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
-              <Text style={styles.text}>Flip Camera</Text>
+                <Text style={styles.text}>Flip Camera</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={takePicture}>
-              <Text style={styles.text}>Take Picture</Text>
+                <Text style={styles.text}>Take Picture</Text>
             </TouchableOpacity>
           </View>
         </Camera>
@@ -66,6 +66,11 @@ export default function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
+  camera: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'flex-end',
+  },  
   buttonContainer: {
     flex: 2,
     backgroundColor: 'transparent',
