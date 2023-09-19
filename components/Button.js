@@ -1,13 +1,24 @@
 import { StyleSheet, View, Pressable, Text } from 'react-native';
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { AntDesign } from '@expo/vector-icons'; 
+import { Link } from 'expo-router';
 
-export default function Button({ label }) {
-  return (
-    <View style={styles.buttonContainer}>
-      <Pressable style={styles.button} onPress={() => alert('You pressed a button.')}>
-        <Text style={styles.buttonLabel}>{label}</Text>
-      </Pressable>
+
+
+export default function Button({ label, theme }) {
+
+  if (theme === "primary") {
+    return (
+      <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 }]}>
+       <Link href="/formulaire" asChild>
+        <Pressable>
+          <Text style={[styles.text]}>{label}</Text>
+          <AntDesign name="filetext1" size={24} color="white"/>
+        </Pressable>
+      </Link>
     </View>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -33,5 +44,9 @@ const styles = StyleSheet.create({
   buttonLabel: {
     color: '#fff',
     fontSize: 16,
+  },
+  text:{
+    color:'white',
+    fontSize: 20
   },
 });

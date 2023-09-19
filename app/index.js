@@ -1,12 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import ImageViewer from './components/ImageViewer';
-import Button from './components/Button';
+import { StyleSheet, Text, View, Pressable } from "react-native";
+import ImageViewer from '../components/ImageViewer';
+import Button from '../components/Button';
 import { Link } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
-export default function App() {
 
-  const PlaceholderImage = require('./assets/images/accueil.jpeg');
+export default function Page() {
+  const PlaceholderImage = require('../assets/images/accueil.jpeg');
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Maire de Simplonville</Text>
@@ -14,8 +14,12 @@ export default function App() {
         <ImageViewer placeholderImageSource={PlaceholderImage}/>
       </View>      
       <View style={styles.footerContainer}>
-      <Link href="/Formulaire">About</Link>
-        <Button theme="primary"  label="Formulaire d'alerte" />
+      {/* <Link href="/formulaire" asChild>
+      <Pressable>
+        <Text style={styles.text}>Home</Text>
+      </Pressable>
+    </Link> */}
+      <Button theme="primary"  label="Formulaire d'alerte" />
       </View>
       <StatusBar style="auto" />
     </View>
