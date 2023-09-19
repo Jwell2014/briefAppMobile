@@ -4,32 +4,45 @@ import { AntDesign } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 
 
-
 export default function Button({ label, theme, onPress }) {
-
   if (theme === "primary") {
     return (
       <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 }]}>
-       <Link href="/formulaire" asChild>
-        <Pressable>
+        <Link href="/formulaire" asChild>
+          <Pressable>
+            <Text style={[styles.text]}>{label}</Text>
+            <AntDesign name="filetext1" size={24} color="white"/>
+          </Pressable>
+        </Link>
+      </View>
+    );
+  } else if (theme === "backToHome") { // Ajoutez une condition pour le bouton "Retour à l'accueil"
+    return (
+      <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "black", borderRadius: 18 }]}>
+        <Link href="/" asChild>
+          <Pressable>
+            <Text style={[styles.text2]}>{label}</Text>
+          </Pressable>
+        </Link>
+      </View>
+    );
+  }else if (theme === "currentDate") { // Ajoutez un thème pour le bouton "Date actuelle"
+    return (
+      <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 }]}>
+        <Pressable onPress={onPress}>
           <Text style={[styles.text]}>{label}</Text>
-          <AntDesign name="filetext1" size={24} color="white"/>
         </Pressable>
-      </Link>
-    </View>
+      </View>
+    );
+  }else {
+    return (
+      <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "black", borderRadius: 18 }]}>
+        <Pressable onPress={onPress}>
+          <Text style={[styles.text2]}>{label}</Text>
+        </Pressable>
+      </View>
     );
   }
-
-  return (
-    <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "black", borderRadius: 18 }]}>
-     <Link href="/formulaire" asChild>
-      <Pressable onPress={onPress}>
-        <Text style={[styles.text2]}>{label}</Text>
-        <AntDesign name="filetext1" size={24} color="white"/>
-      </Pressable>
-    </Link>
-  </View>
-  );
 }
 
 const styles = StyleSheet.create({
@@ -40,21 +53,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 3,
-  },
-  button: {
-    borderRadius: 10,
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  buttonIcon: {
-    paddingRight: 8,
-  },
-  buttonLabel: {
-    color: '#fff',
-    fontSize: 16,
+    marginBottom: 20
   },
   text:{
     color:'white',
@@ -63,6 +62,5 @@ const styles = StyleSheet.create({
   text2:{
     color:'black',
     fontSize: 20,
-    paddingTop: 20,
   },
 });

@@ -14,11 +14,6 @@ export default function Page() {
         <ImageViewer placeholderImageSource={PlaceholderImage}/>
       </View>      
       <View style={styles.footerContainer}>
-      {/* <Link href="/formulaire" asChild>
-      <Pressable>
-        <Text style={styles.text}>Home</Text>
-      </Pressable>
-    </Link> */}
       <Button theme="primary"  label="Formulaire d'alerte" />
       </View>
       <StatusBar style="auto" />
@@ -36,7 +31,7 @@ const styles = StyleSheet.create({
   text:{
     color:'white',
     paddingTop: 100,
-    fontSize: 20
+    fontSize: 30
   },
   imageContainer: {
     flex: 1,
