@@ -5,7 +5,7 @@ import { Link } from 'expo-router';
 
 
 
-export default function Button({ label, theme }) {
+export default function Button({ label, theme, onPress }) {
 
   if (theme === "primary") {
     return (
@@ -19,6 +19,17 @@ export default function Button({ label, theme }) {
     </View>
     );
   }
+
+  return (
+    <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "black", borderRadius: 18 }]}>
+     <Link href="/formulaire" asChild>
+      <Pressable onPress={onPress}>
+        <Text style={[styles.text2]}>{label}</Text>
+        <AntDesign name="filetext1" size={24} color="white"/>
+      </Pressable>
+    </Link>
+  </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -48,5 +59,10 @@ const styles = StyleSheet.create({
   text:{
     color:'white',
     fontSize: 20
+  },
+  text2:{
+    color:'black',
+    fontSize: 20,
+    paddingTop: 20,
   },
 });
