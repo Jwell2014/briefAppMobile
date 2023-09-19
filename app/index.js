@@ -5,6 +5,7 @@ import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 
+
 export default function Page() {
   const PlaceholderImage = require('../assets/images/accueil.jpeg');
   return (
@@ -41,4 +42,5 @@ const styles = StyleSheet.create({
     flex: 1 / 3,
     alignItems: 'center',
   },
+ 
 });

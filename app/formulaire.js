@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import Button from "../components/Button";
 import FormInput from "../components/FormInput"; 
 import { ScrollView } from 'react-native';
 import ImageViewer from '../components/ImageViewer';
 import MapView from 'react-native-maps';
-
-import { Link } from 'expo-router';
-
+import { Camera } from 'expo-camera';
+import CameraScreen from "../components/CameraScreen";
 
 
 export default function Formulaire() {
@@ -134,6 +133,9 @@ export default function Formulaire() {
       <View style={styles.mapContainer}>
         <MapView style={styles.map} />
       </View>
+
+      <CameraScreen/>
+
       <FormInput label="Message :" value={message} onChangeText={setMessage} multiline={true} numberOfLines={4} />
       
       <View style={styles.dateContainer}>
@@ -189,9 +191,12 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+
   },
   map: {
-    width: '100%',
-    height: '100%',
+    width: "80%",
+    height: 300,
   },
 });
