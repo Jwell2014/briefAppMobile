@@ -9,13 +9,14 @@ export default function Button({ label, theme, onPress }) {
     return (
       <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 }]}>
         <Link href="/formulaire" asChild>
-          <Pressable>
+          <Pressable style={styles.buttonContent}>
+            <AntDesign name="filetext1" size={24} color="white" />
             <Text style={[styles.text]}>{label}</Text>
-            <AntDesign name="filetext1" size={24} color="white"/>
           </Pressable>
         </Link>
       </View>
     );
+
   } else if (theme === "backToHome") { // Ajoutez une condition pour le bouton "Retour à l'accueil"
     return (
       <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "black", borderRadius: 18 }]}>
@@ -57,10 +58,16 @@ const styles = StyleSheet.create({
   },
   text:{
     color:'white',
-    fontSize: 20
+    fontSize: 20,
+    marginLeft: 10
   },
   text2:{
     color:'black',
     fontSize: 20,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center', // Pour aligner les éléments verticalement au centre
+    justifyContent: 'center', // Pour centrer les éléments horizontalement
   },
 });

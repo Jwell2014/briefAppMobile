@@ -37,40 +37,49 @@ export default function CameraScreen() {
         const photo = await cameraRef.current.takePictureAsync();
         console.log(photo.uri); // Chemin de la photo capturée
         setCapturedImage(photo.uri); // Stockez le chemin de la photo capturée
+        alert("Capture d'écran enregistrée")
       }
     };
 
     const cameraHeight = 300;
    
     return (
-      <View style={[styles.camera, { height: cameraHeight }]}>
-        <Camera
-          style={{ flex: 1 }}
-          type={type}
-          ref={cameraRef}
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
+      <View style={styles.container}>
+      <View style={[styles.cameraContainer, { height: cameraHeight }]}>
+        {!capturedImage ? ( // Affichez la caméra si capturedImage est null
+          <Camera
+            style={{ flex: 1 }}
+            type={type}
+            ref={cameraRef}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
                 <Text style={styles.text}>Flip Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={takePicture}>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={takePicture}>
                 <Text style={styles.text}>Take Picture</Text>
-            </TouchableOpacity>
-          </View>
-        </Camera>
-        {capturedImage && ( // Afficher l'image capturée si elle existe
-          <ImageViewer placeholderImageSource={{ uri: capturedImage }} style={styles.capturedImage} />
-        )}
+              </TouchableOpacity>
+            </View>
+          </Camera>
+        ) : null}
       </View>
+      {capturedImage && ( // Affichez l'image capturée si capturedImage n'est pas null
+        <ImageViewer placeholderImageSource={{ uri: capturedImage }} style={styles.capturedImage} />
+      )}
+    </View>
     );
 }
 
 const styles = StyleSheet.create({
-  camera: {
+  container: {
     flex: 1,
     backgroundColor: 'transparent',
-    justifyContent: 'flex-end',
-  },  
+  },
+  cameraContainer: {
+    flex: 1,
+    height: 300,
+    marginTop: 10,
+  },
   buttonContainer: {
     flex: 2,
     backgroundColor: 'transparent',

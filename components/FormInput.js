@@ -13,7 +13,10 @@ export default function FormInput({
   multiline,
   numberOfLines,
   selectedOption,
-  onOptionChange }) {
+  onOptionChange, 
+  toggledatePiker,
+  toggleTimePiker
+}) {
 
   return (
     <View style={styles.container}>
@@ -29,6 +32,8 @@ export default function FormInput({
             multiline={false}
             numberOfLines={1}
             placeholder="JJ/MM/AAAA"
+            editable={false}
+            onPressIn={toggledatePiker}
           />
         ) : inputType === "time" ? (
           // Afficher un champ d'heure avec le type approprié
@@ -40,6 +45,8 @@ export default function FormInput({
             multiline={false}
             numberOfLines={1}
             placeholder="HH:MM"
+            editable={false}
+            onPressIn={toggleTimePiker}
           />
         ) : keyboardType === "picker" ? (
         <Picker selectedValue={selectedOption} onValueChange={onOptionChange}>

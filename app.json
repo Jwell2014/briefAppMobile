@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "briefAppMobile",
-    "slug": "briefAppMobile",
+    "slug": "briefappmobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,24 +10,28 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.briefAppMobile"
+      "bundleIdentifier": "com.anonymous.briefAppMobile",
+      "runtimeVersion": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -41,6 +45,18 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "95865be0-47f8-4291-8120-80e5f5ff4e9a"
+      }
+    },
+    "owner": "jwell",
+    "updates": {
+      "url": "https://u.expo.dev/95865be0-47f8-4291-8120-80e5f5ff4e9a"
+    }
   }
 }
