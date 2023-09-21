@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { Camera, CameraType } from 'expo-camera';
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import ImageViewer from '../components/ImageViewer';
+import { useImage, ImageProvider } from '../contexte/ImageContext'; // Importez le hook useImage
 
 
 export default function CameraScreen() {
     const [hasPermission, setHasPermission] = useState(null);
     const [type, setType] = useState(Camera.Constants.Type.back);
-    const [capturedImage, setCapturedImage] = useState(null);
+    const { capturedImage, setCapturedImage } = useImage();
+    
     const cameraRef = useRef(null);
 
     useEffect(() => {
@@ -23,7 +25,7 @@ export default function CameraScreen() {
     if (hasPermission === false) {
         return <Text>No access to camera</Text>;
     }
-
+  
     const toggleCameraType = () => {
       setType(
         type === Camera.Constants.Type.back
@@ -44,6 +46,7 @@ export default function CameraScreen() {
     const cameraHeight = 300;
    
     return (
+      <ImageProvider>
       <View style={styles.container}>
       <View style={[styles.cameraContainer, { height: cameraHeight }]}>
         {!capturedImage ? ( // Affichez la caméra si capturedImage est null
@@ -64,9 +67,12 @@ export default function CameraScreen() {
         ) : null}
       </View>
       {capturedImage && ( // Affichez l'image capturée si capturedImage n'est pas null
-        <ImageViewer placeholderImageSource={{ uri: capturedImage }} style={styles.capturedImage} />
+      <View style={styles.capturedImage}>
+        <ImageViewer placeholderImageSource={{ uri: capturedImage }}/>
+      </View>
       )}
     </View>
+    </ImageProvider>
     );
 }
 
@@ -77,14 +83,12 @@ const styles = StyleSheet.create({
   },
   cameraContainer: {
     flex: 1,
-    height: 300,
-    marginTop: 10,
+    height: 200,
   },
   buttonContainer: {
     flex: 2,
     backgroundColor: 'transparent',
-    flexDirection: 'row',
-    margin: 20,
+    flexDirection: 'row'
   },
   button: {
     flex: 1,
@@ -96,7 +100,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   capturedImage: {
-    width: '100%', // Pour occuper toute la largeur
-    height: 200, // Vous pouvez définir une hauteur spécifique
+    width: '300', // Pour occuper toute la largeur
+    height: 100, // Vous pouvez définir une hauteur spécifique
+    marginTop: -180,
+    marginBottom: 120
   },
 });

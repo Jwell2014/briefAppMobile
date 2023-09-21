@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   label: {
-    fontSize: 18,
+    fontSize: 22,
     marginBottom: 5,
   },
   input: {
@@ -96,4 +96,5 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 10
   },
+
 });

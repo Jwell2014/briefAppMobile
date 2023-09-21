@@ -5,7 +5,7 @@ export default function ImageViewer({ placeholderImageSource }) {
   const screenWidth = Dimensions.get('window').width; // Obtenez la largeur de l'écran
 
   // Réglez la largeur de l'image en pourcentage de la largeur de l'écran
-  const imageWidth = screenWidth * 0.8; // Vous pouvez ajuster le pourcentage selon vos besoins
+  const imageWidth = screenWidth * 1; // Vous pouvez ajuster le pourcentage selon vos besoins
 
   return (
     <View style={styles.imageContainer}>
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: undefined, // La hauteur est calculée en fonction de la largeur
-    aspectRatio: 320 / 440, // Remplacez ces valeurs par les dimensions de votre image d'accueil
+    aspectRatio: 320 / 250, // Remplacez ces valeurs par les dimensions de votre image d'accueil
     borderRadius: 18,
   },
 });

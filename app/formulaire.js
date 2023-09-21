@@ -4,28 +4,21 @@ import Button from "../components/Button";
 import FormInput from "../components/FormInput"; 
 import { ScrollView } from 'react-native';
 import ImageViewer from '../components/ImageViewer';
-import MapView from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import CameraScreen from "../components/CameraScreen";
 import axios from 'axios';
 import { PermissionsAndroid, Platform } from 'react-native';
 // import Geolocation from 'react-native-geolocation-service';
 import DateTimePiker from '@react-native-community/datetimepicker'
+import { useNavigation } from '@react-navigation/native';
+import Mailer from 'react-native-mail';
+import { ImageProvider } from '../contexte/ImageContext';
+import { useImage} from '../contexte/ImageContext'; // Importez le hook useImage
 
 
 
 export default function Formulaire() {
-  const [nom, setNom] = useState("");
-  const [prenom, setPrenom] = useState("");
-  const [adresse, setAdresse] = useState("");
-  const [cp, setCp] = useState("");
-  const [ville, setVille] = useState("");
-  const [tel, setTel] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [selectedOption, setSelectedOption] = useState("");
   const [dateHeure, setDateHeure] = useState(new Date());
-  const [date, setDate] = useState(""); // Champ pour la date
-  const [heure, setHeure] = useState(""); // Champ pour l'heure
   const [showPiker, setShowPiker] = useState(false);
 
   const [datePiker, setDatePiker] = useState(new Date());
@@ -39,8 +32,69 @@ export default function Formulaire() {
 
 
   const [coordinate, setCoordinate] = useState({ latitude: "", longitude: "" });
-  const [convertedAddress, setConvertedAddress] = useState("");
+  const [markerPosition, setMarkerPosition] = useState({
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,})
 
+  const [formData, setFormData] = useState({
+    nom: "",
+    prenom: "",
+    adresse: "",
+    cp: "",
+    ville: "",
+    tel: "",
+    email: "",
+    message: "",
+    selectedOption: "",
+    date: "",
+    heure: "",
+    convertedAddress: "",
+    dateHeure: new Date(),
+    capturedImage: useImage(),
+  });
+  
+  const setNom = (value) => {
+    setFormData((prevData) => ({ ...prevData, nom: value }));
+  };
+  const setPrenom = (value) => {
+    setFormData((prevData) => ({ ...prevData, prenom: value }));
+  };
+  const setAdresse = (value) => {
+    setFormData((prevData) => ({ ...prevData, adresse: value }));
+  };
+
+  const setVille = (value) => {
+    setFormData((prevData) => ({ ...prevData, ville: value }));
+  };
+
+  const setTel = (value) => {
+    setFormData((prevData) => ({ ...prevData, tel: value }));
+  };
+  const setEmail = (value) => {
+    setFormData((prevData) => ({ ...prevData, email: value }));
+  };
+  const setCp = (value) => {
+    setFormData((prevData) => ({ ...prevData, cp: value }));
+  };
+  const setMessage = (value) => {
+    setFormData((prevData) => ({ ...prevData, message: value }));
+  };
+  const setSelectedOption = (value) => {
+    setFormData((prevData) => ({ ...prevData, selectedOption: value }));
+  };
+  const setConvertedAddress = (value) => {
+    setFormData((prevData) => ({ ...prevData, convertedAddress: value }));
+  };
+  const setDate = (value) => {
+    setFormData((prevData) => ({ ...prevData, date: value }));
+  };
+  const setHeure = (value) => {
+    setFormData((prevData) => ({ ...prevData, heure: value }));
+  };
+
+  const navigation = useNavigation(); // Obtenez l'objet de navigation
 
   const PlaceholderImage = require('../assets/images/formulaire.png');
 
@@ -52,8 +106,51 @@ export default function Formulaire() {
     Animaux: "Mail envoyer à Animaux@simplonville.co",
   };
 
+  const sendEmailWithImage = () => {
+    const { capturedImage } = formData; 
+    if (capturedImage) {
+      // Créez un objet d'e-mail
+      const email = {
+        subject: "Formulaire d'alerte",
+        recipients: ['j.well2014@yahoo.fr'], // Ajoutez l'adresse e-mail du destinataire ici
+        body: `
+          Sujet : ${formData.selectedOption}
+          Nom : ${formData.nom}
+          Prénom : ${formData.prenom}
+          Adresse : ${formData.adresse}
+          Code postal : ${formData.cp}
+          Ville : ${formData.ville}
+          Téléphone : ${formData.tel}
+          Email : ${formData.email}
+          Message : ${formData.message}
+          Option sélectionnée : ${formData.selectedOption}
+          Date : ${formData.date}
+          Heure : ${formData.heure}
+          Adresse convertie : ${formData.convertedAddress}
+          Capture ecran : ${formData.capturedImage}
+        `,
+        isHTML: false,
+        attachment: {
+          path: capturedImage, // Chemin de l'image capturée
+          type: 'jpg', // Type d'image, ajustez-le en fonction du format de l'image
+          name: 'photo.jpg', // Nom de l'image attachée
+        },
+      };
+
+      // Utilisez la fonction sendMail pour envoyer l'e-mail
+      Mailer.mail(email, (error, event) => {
+        if (error) {
+          alert('Impossible d\'envoyer l\'e-mail. Vérifiez les paramètres de messagerie de votre appareil.');
+        }
+      });
+    } else {
+      alert('Capturez d\'abord une image avant d\'envoyer l\'e-mail.');
+    }
+  };
   
   const handleValidation = () => {
+    const { nom, prenom,email,adresse,cp,ville,tel,message,date,heure,selectedOption,convertedAddress } = formData;
+
     const champsObligatoires = {
       nom,
       prenom,
@@ -68,35 +165,37 @@ export default function Formulaire() {
       selectedOption,
       convertedAddress,
     };
+
+     // Vous pouvez accéder à toutes les données du formulaire ici
+     console.log("Nom:", nom);
+     console.log("Prénom:", prenom);
+     console.log("Email:", email);
+     console.log("adresse:", adresse);
+     console.log("Message:", message);
+     console.log("cp:", cp);
+     console.log("ville:", ville);
+     console.log("tel:", tel);
+     console.log("Option sélectionnée:", selectedOption);
+     console.log("convertedAddress:", convertedAddress)
   
-    const champsManquants = [];
   
-    for (const champ in champsObligatoires) {
-      if (!champsObligatoires[champ] || champsObligatoires[champ] === "") {
-        champsManquants.push(champsObligatoires[champ]);
-      }
-    }
+   // Vérifiez tous les champs obligatoires
+    const champsManquants = Object.keys(champsObligatoires).filter(champ => {
+      const valeur = champsObligatoires[champ];
+      return !valeur || valeur.trim() === ""; // Assurez-vous que le champ n'est pas vide ou composé uniquement d'espaces
+    });
   
     if (isNaN(Number(cp)) || isNaN(Number(tel))) {
       champsManquants.push("Code postal ou Téléphone");
     }
   
     if (champsManquants.length > 0) {
-      const champsManquantsMessage = `Veuillez remplir les champs vides`;
+      const champsManquantsMessage = `Veuillez remplir les champs vides : ${champsManquants.join(", ")}`;
       alert(champsManquantsMessage);
       return;
     }
   
-    console.log("Nom:", nom);
-    console.log("Prénom:", prenom);
-    console.log("Email:", email);
-    console.log("adresse:", adresse);
-    console.log("Message:", message);
-    console.log("cp:", cp);
-    console.log("ville:", ville);
-    console.log("tel:", tel);
-    console.log("Option sélectionnée:", selectedOption);
-    console.log("convertedAddress:", convertedAddress)
+   
 
     const selectedAlertMessage = alertMessages[selectedOption];
     alert(selectedAlertMessage);
@@ -114,7 +213,12 @@ export default function Formulaire() {
     setHeure("");
     setSelectedOption("")
     setConvertedAddress("")
+    setCoordinate("")
   
+    // Si le formulaire est valide, vous pouvez maintenant envoyer l'e-mail
+    sendEmailWithImage();
+    // Redirigez l'utilisateur vers la page d'accueil (index)
+    navigation.navigate("index");
   };
   
   
@@ -226,7 +330,7 @@ const convertCoordinatesToAddress = async (latitude, longitude) => {
   // Fonction pour gérer le clic sur la carte
 const handleMapPress = async (event) => {
   const { latitude, longitude } = event.nativeEvent.coordinate;
-  setCoordinate({ latitude, longitude });
+  setMarkerPosition({ latitude, longitude });
   console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
 
    // Convertir les coordonnées en adresse
@@ -262,56 +366,71 @@ const handleMapPress = async (event) => {
 
   return (
     <ScrollView style={styles.container}>
+      <ImageProvider>
+
       <View>
         <Text style={styles.titre}>FORMULAIRE D'ALERTE</Text>
         <ImageViewer style={styles.imageContainer} placeholderImageSource={PlaceholderImage}/>
       </View>
-      <View>
-      <FormInput label="Choisissez une alerte :" keyboardType="picker" selectedOption={selectedOption} onOptionChange={handleOptionChange} />
+
+      <View style={styles.containerForm} >
+      <FormInput label=" ᗌ Indiquer une alerte :" keyboardType="picker" selectedOption={formData.selectedOption} onOptionChange={handleOptionChange} />
+      
+      <Text style={styles.label}> ᗌ Indiquer un lieu :</Text>  
       <View style={styles.mapContainer}>
-      <Text>Indiquer un lieu :</Text>  
-      <MapView
-          ref={mapRef}
-          style={styles.map}
-          initialRegion={{
-            latitude: 37.78825,
-            longitude: -122.4324,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          onPress={handleMapPress} // Ajoutez cet événement
-      />
+          <MapView
+              ref={mapRef}
+              style={styles.map}
+              initialRegion={{
+                latitude: 37.78825,
+                longitude: -122.4324,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              }}
+              // onPress={handleMapPress} // Ajoutez cet événement
+          >
+            <Marker
+            draggable
+            coordinate={markerPosition}
+            title="marker"
+            // onDragEnd={(e) => {
+            //   setMarkerPosition(e.nativeEvent.coordinate)
+            //   console.log(markerPosition.latitude)}}
+            onDragEnd={handleMapPress}  
+            />
+          </MapView>
       </View>
       
       {/* Affichage des coordonnées actuelles */}
-      {coordinate.latitude !== "" && coordinate.longitude !== "" && (
+      {markerPosition.latitude !== "" && markerPosition.longitude !== "" && (
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.label}>Latitude :</Text>
-            <Text style={[styles.dateHeureText, {color: "red"}]}>{coordinate.latitude}</Text>
+            <Text style={[styles.dateHeureText, {color: "red"}]}>{markerPosition.latitude}</Text>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.label}>Longitude :</Text>
-            <Text style={[styles.dateHeureText, {color: "red"}]}>{coordinate.longitude}</Text>
+            <Text style={[styles.dateHeureText, {color: "red"}]}>{markerPosition.longitude}</Text>
           </View>
-
-
+          <Text style={styles.label}> ᗌ Adresse :</Text>
+          <Text style={[styles.adressText, {fontWeight: 'bold'}]}>{formData.convertedAddress}</Text>
         </View>
       )}
+      <View>
 
-      <Text style={styles.label}>Adresse convertie :</Text>
-      <Text style={[styles.dateHeureText, {fontWeight: 'bold'}]}>{convertedAddress}</Text>
-  
+      <Text style={styles.label}> ᗌ Capture écran :</Text>  
       <CameraScreen/>
+      </View>  
 
-      <FormInput label="Message :" value={message} onChangeText={setMessage} multiline={true} numberOfLines={4} />
+      <View style={styles.infoContainer}>
+      <FormInput label=" ᗌ Message :" value={formData.message} onChangeText={setMessage} multiline={true} numberOfLines={4} />
       
       {/* Bloc choix de la date */}
       <View style={styles.dateContainer}>
         {!showPiker && (
         <Pressable onPress={toggledatePiker} >
-        <FormInput label="Date :" value={date} onChangeText={setDate} inputType="date" toggledatePiker={toggledatePiker}/>
+        <FormInput label=" ᗌ Date :" value={formData.date} onChangeText={setDate} inputType="date" toggledatePiker={toggledatePiker}/>
         </Pressable>  
         )}
         
@@ -332,14 +451,14 @@ const handleMapPress = async (event) => {
         </View>
 
         )}
-        <Button label="Date actuelle" onPress={handleSetCurrentDate} />
+        <Button label="Date actuelle" onPress={handleSetCurrentDate} theme={"currentDate"} />
       </View>
 
       {/* Bloc choix de l'heure */}
       <View style={styles.heureContainer}>
         {!showTimePicker && (
           <Pressable onPress={toggleTimePicker} >
-          <FormInput label="Heure :" value={heure} onChangeText={setHeure} inputType="time" toggleTimePiker={toggleTimePicker}/>
+          <FormInput label=" ᗌ Heure :" value={formData.heure} onChangeText={setHeure} inputType="time" toggleTimePiker={toggleTimePicker}/>
           </Pressable>  
         )}
 
@@ -350,7 +469,7 @@ const handleMapPress = async (event) => {
         {showTimePicker && Platform.OS === "ios" && (
         <View style= {{flexDirection: "row", justifyContent:"space-around"}}>
 
-          <TouchableOpacity style= {[styles.button, styles.pickerButton, {backgroundColor: "#11182711"}]} onPress={toggleTimePicker} >
+          <TouchableOpacity style= {[styles.button, , {backgroundColor: "#11182711"}]} onPress={toggleTimePicker} >
             <Text style={[styles.buttonText]}>Cancel</Text>
           </TouchableOpacity>
 
@@ -360,20 +479,26 @@ const handleMapPress = async (event) => {
         </View>
 
         )}
-          <Button label="Heure actuelle" onPress={handleSetCurrentTime} />
+          <Button label="Heure actuelle" onPress={handleSetCurrentTime} theme={"currentDate"}/>
       </View>
-
-      <FormInput label="Nom :" value={nom} onChangeText={setNom} inputType="text"/>
-      <FormInput label="Prénom :" value={prenom} onChangeText={setPrenom} inputType="text"/>
-      <FormInput label="Adresse :" value={adresse} onChangeText={setAdresse} inputType="text"/>
-      <FormInput label="Code postale :" value={cp} onChangeText={setCp} inputType="number"/>
-      <FormInput label="Ville :" value={ville} onChangeText={setVille} inputType="text"/>
-      <FormInput label="Telephone :" value={tel} onChangeText={setTel} inputType="number"/>
-      <FormInput label="Email :" value={email} onChangeText={setEmail} keyboardType="email-address" />
+      </View>
+      
+           
+      <FormInput label=" ᗌ Nom :" value={formData.nom} onChangeText={setNom} inputType="text"/>
+      <FormInput label=" ᗌ Prénom :" value={formData.prenom} onChangeText={setPrenom} inputType="text"/>
+      <FormInput label=" ᗌ Adresse :" value={formData.adresse} onChangeText={setAdresse} inputType="text"/>
+      <FormInput label=" ᗌ Code postale :" value={formData.cp} onChangeText={setCp} inputType="number"/>
+      <FormInput label=" ᗌ Ville :" value={formData.ville} onChangeText={setVille} inputType="text"/>
+      <FormInput label=" ᗌ Telephone :" value={formData.tel} onChangeText={setTel} inputType="number"/>
+      <FormInput label=" ᗌ Email :" value={formData.email} onChangeText={setEmail} keyboardType="email-address" />
       </View> 
-      <Button label="Valider" onPress={handleValidation} />
-      <Button label="Retour à l'accueil" theme="backToHome" />
 
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Button label="Retour" theme="backToHome" />
+        <Button label="Valider" onPress={handleValidation} />
+      </View>
+      
+      </ImageProvider>
     </ScrollView>
   );
 }
@@ -382,20 +507,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
+    // backgroundColor: "rgb(2,0,36)",
+  },
+  containerForm: {
+    marginBottom: 50
   },
   label: {
-    fontSize: 18,
+    fontSize: 22,
     marginBottom: 5,
   },
   datePicker: {
     width: 200,
     marginBottom: 10,
+    color:"white"
   },
   titre:{
     fontSize: 25,
+    height: 50,
     textAlign: "center",
-    marginBottom: 50
+    marginBottom: 50,
+    color:"black",
+    marginTop: 40,
+    borderWidth: 4, 
+    borderColor: "black", 
+    borderRadius: 10,
+    paddingTop: 5
   },
   button: {
     height:50,
@@ -415,6 +551,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 10,
   },
+  adressText: {
+    fontSize: 18,
+    padding: 10,
+    color: "#94bbe9",
+    borderWidth: 2, 
+    borderColor: "black", 
+    borderRadius: 10,
+    marginBottom: 50
+  },
   imageContainer: {
     height: 10,
     width: 50
@@ -423,10 +568,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-
+    marginBottom: 20
   },
   map: {
-    width: "80%",
+    width: "100%",
     height: 300,
   },
   coordinatesText: {
@@ -436,8 +581,23 @@ const styles = StyleSheet.create({
   datePiker: {
     height: 120,
     marginTop: -10,
+    backgroundColor:"white"
+  },
+  timePiker :{
+    height: 120,
+    marginTop: -10,
+    backgroundColor:"white"
   },
   pickerButton: {
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    backgroundColor:"white"
+  },
+  infoContainer : {
+    // backgroundColor: "gray"
+    marginTop: 40,
+  },
+  labelLieu: {
+    fontSize: 20,
+    textAlign: "left"
   }
 });
