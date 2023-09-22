@@ -8,12 +8,13 @@ import MapView, {Marker} from 'react-native-maps';
 import CameraScreen from "../components/CameraScreen";
 import axios from 'axios';
 import { PermissionsAndroid, Platform } from 'react-native';
-// import Geolocation from 'react-native-geolocation-service';
 import DateTimePiker from '@react-native-community/datetimepicker'
 import { useNavigation } from '@react-navigation/native';
-import Mailer from 'react-native-mail';
 import { ImageProvider } from '../contexte/ImageContext';
-import { useImage} from '../contexte/ImageContext'; // Importez le hook useImage
+import * as MailComposer from 'expo-mail-composer';
+import * as Location from 'expo-location';
+
+
 
 
 
@@ -26,17 +27,14 @@ export default function Formulaire() {
   const [dateOfBirth, setDateOfBirth] = useState("")
   const [timeOfBirth, setTimeOfBirth] = useState("")
 
+  const [locationPiker, setLocationPiker] = useState(false)
 
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [timePicker, setTimePicker] = useState(new Date());
 
 
   const [coordinate, setCoordinate] = useState({ latitude: "", longitude: "" });
-  const [markerPosition, setMarkerPosition] = useState({
-    latitude: 37.78825,
-    longitude: -122.4324,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,})
+  const [markerPosition, setMarkerPosition] = useState({ })
 
   const [formData, setFormData] = useState({
     nom: "",
@@ -50,9 +48,8 @@ export default function Formulaire() {
     selectedOption: "",
     date: "",
     heure: "",
-    convertedAddress: "",
+    convertedAddress: convertCoordinatesToAddress,
     dateHeure: new Date(),
-    capturedImage: useImage(),
   });
   
   const setNom = (value) => {
@@ -94,9 +91,11 @@ export default function Formulaire() {
     setFormData((prevData) => ({ ...prevData, heure: value }));
   };
 
-  const navigation = useNavigation(); // Obtenez l'objet de navigation
+  const navigation = useNavigation();
 
   const PlaceholderImage = require('../assets/images/formulaire.png');
+  const PlaceholderImageLoading = require('../assets/images/log.gif');
+
 
   const alertMessages = {
     Voirie: "Mail envoyer à voirie@simplonville.co",
@@ -106,46 +105,74 @@ export default function Formulaire() {
     Animaux: "Mail envoyer à Animaux@simplonville.co",
   };
 
-  const sendEmailWithImage = () => {
-    const { capturedImage } = formData; 
-    if (capturedImage) {
-      // Créez un objet d'e-mail
-      const email = {
-        subject: "Formulaire d'alerte",
-        recipients: ['j.well2014@yahoo.fr'], // Ajoutez l'adresse e-mail du destinataire ici
-        body: `
-          Sujet : ${formData.selectedOption}
-          Nom : ${formData.nom}
-          Prénom : ${formData.prenom}
-          Adresse : ${formData.adresse}
-          Code postal : ${formData.cp}
-          Ville : ${formData.ville}
-          Téléphone : ${formData.tel}
-          Email : ${formData.email}
-          Message : ${formData.message}
-          Option sélectionnée : ${formData.selectedOption}
-          Date : ${formData.date}
-          Heure : ${formData.heure}
-          Adresse convertie : ${formData.convertedAddress}
-          Capture ecran : ${formData.capturedImage}
-        `,
-        isHTML: false,
-        attachment: {
-          path: capturedImage, // Chemin de l'image capturée
-          type: 'jpg', // Type d'image, ajustez-le en fonction du format de l'image
-          name: 'photo.jpg', // Nom de l'image attachée
-        },
-      };
+  //   // Créez un objet d'e-mail sans pièce jointe
+  //   const email = {
+  //     subject: "Formulaire d'alerte",
+  //     recipients: ["votre@adresse.email"], // Ajoutez l'adresse e-mail du destinataire ici
+  //     body: `
+  //       Sujet : ${formData.selectedOption}
+  //       Nom : ${formData.nom}
+  //       Prénom : ${formData.prenom}
+  //       Adresse : ${formData.adresse}
+  //       Code postal : ${formData.cp}
+  //       Ville : ${formData.ville}
+  //       Téléphone : ${formData.tel}
+  //       Email : ${formData.email}
+  //       Message : ${formData.message}
+  //       Option sélectionnée : ${formData.selectedOption}
+  //       Date : ${formData.date}
+  //       Heure : ${formData.heure}
+  //       Adresse convertie : ${formData.convertedAddress}
+  //     `,
+  //     isHTML: false,
+  //   };
 
-      // Utilisez la fonction sendMail pour envoyer l'e-mail
-      Mailer.mail(email, (error, event) => {
-        if (error) {
-          alert('Impossible d\'envoyer l\'e-mail. Vérifiez les paramètres de messagerie de votre appareil.');
+  //   // Utilisez la fonction sendMail pour envoyer l'e-mail
+  //   Mailer.mail(email, (error, event) => {
+  //     if (error) {
+  //       alert("Impossible d'envoyer l'e-mail. Vérifiez les paramètres de messagerie de votre appareil.");
+  //     }
+  //   });
+  // };
+  
+  const sendEmail = () => {
+    // Définissez les destinataires, le sujet et le corps de l'e-mail
+    const recipients = ['cdelobel.ext@simplon.co', 'j.well2014@yahoo.fr'];
+    const subject = `Formulaire ${formData.selectedOption}`;
+    const body = `
+      Sujet : ${formData.selectedOption}
+      Nom : ${formData.nom}
+      Prénom : ${formData.prenom}
+      Adresse : ${formData.adresse}
+      Code postal : ${formData.cp}
+      Ville : ${formData.ville}
+      Téléphone : ${formData.tel}
+      Email : ${formData.email}
+      Message : ${formData.message}
+      Option sélectionnée : ${formData.selectedOption}
+      Date : ${formData.date}
+      Heure : ${formData.heure}
+      Adresse convertie : ${formData.convertedAddress}
+    `;
+  
+    // Utilisez MailComposer.composeAsync pour ouvrir l'application de messagerie
+    MailComposer.composeAsync({
+      recipients,
+      subject,
+      body,
+    })
+      .then((result) => {
+        if (result.status === 'sent') {
+          // Le courrier électronique a été envoyé avec succès
+          console.log('L\'e-mail a été envoyé avec succès');
+        } else {
+          // L'envoi de l'e-mail a été annulé ou a échoué
+          console.log('L\'envoi de l\'e-mail a été annulé ou a échoué');
         }
+      })
+      .catch((error) => {
+        console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
       });
-    } else {
-      alert('Capturez d\'abord une image avant d\'envoyer l\'e-mail.');
-    }
   };
   
   const handleValidation = () => {
@@ -216,7 +243,7 @@ export default function Formulaire() {
     setCoordinate("")
   
     // Si le formulaire est valide, vous pouvez maintenant envoyer l'e-mail
-    sendEmailWithImage();
+    sendEmail();
     // Redirigez l'utilisateur vers la page d'accueil (index)
     navigation.navigate("index");
   };
@@ -308,8 +335,10 @@ export default function Formulaire() {
     toggleTimePicker();
   }
 
-  // Définissez une référence à la carte
+// Défini une référence à la carte
 const mapRef = useRef(null);
+
+// Convertit les coordonnées en adresse
 const convertCoordinatesToAddress = async (latitude, longitude) => {
   try {
     const response = await axios.get(
@@ -327,7 +356,8 @@ const convertCoordinatesToAddress = async (latitude, longitude) => {
     return 'Erreur de géocodage';
   }
 };
-  // Fonction pour gérer le clic sur la carte
+
+// Fonction pour gérer le clic sur la carte
 const handleMapPress = async (event) => {
   const { latitude, longitude } = event.nativeEvent.coordinate;
   setMarkerPosition({ latitude, longitude });
@@ -344,66 +374,102 @@ const handleMapPress = async (event) => {
 };
 
 
-// Fonction pour obtenir la position actuelle
-// const getCurrentLocation = () => {
-//   Geolocation.getCurrentPosition(
-//     (position) => {
-//       const { latitude, longitude } = position.coords;
-//       console.log('Latitude actuelle :', latitude);
-//       console.log('Longitude actuelle :', longitude);
-      
-//       // Utilisez ces coordonnées comme bon vous semble, par exemple, les afficher sur l'écran.
-//       // Vous pouvez également mettre à jour l'état pour stocker ces coordonnées si nécessaire.
-//       setCoordinate({ latitude, longitude });
-//     },
-//     (error) => {
-//       console.error('Erreur lors de la récupération de la position actuelle :', error);
-//     },
-//     { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-//   );
-// };
+const getLocation = async () => {   
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    
+    setMarkerPosition({ 
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.0022,
+      longitudeDelta: 0.0002
+    });
+    if(locationPiker == false){
+      setLocationPiker(true)
+    }
+    convertCoordinatesToAddress(location.coords.latitude,location.coords.longitude)
+    console.log(location)
+}
+
+useEffect(() => {
+  getLocation();
+  if(locationPiker){
+    setConvertedAddress()
+  }
+}, [locationPiker])
+
+
+const handleResetPosition = async() => {
+  let location = await Location.getCurrentPositionAsync({});
+
+  // Réinitialisez la position actuelle
+  setMarkerPosition({ 
+    latitude: location.coords.latitude,
+    longitude: location.coords.longitude,
+    latitudeDelta: 0.0022,
+    longitudeDelta: 0.0002
+  });
+  console.log("handleResetPosition",markerPosition)
+  convertCoordinatesToAddress(markerPosition.latitude,markerPosition.longitude)
+};
 
 
   return (
     <ScrollView style={styles.container}>
       <ImageProvider>
 
-      <View>
-        <Text style={styles.titre}>FORMULAIRE D'ALERTE</Text>
-        <ImageViewer style={styles.imageContainer} placeholderImageSource={PlaceholderImage}/>
-      </View>
+        <View>
+          <Text style={styles.titre}>FORMULAIRE D'ALERTE</Text>
+          <ImageViewer style={styles.imageContainer} placeholderImageSource={PlaceholderImage}/>
+        </View>
+        <View>
+          <Text style={styles.titre1}>Informations sur l'alerte</Text>
+        </View>
+        <View style={styles.containerForm} >
+          <FormInput label=" ᗌ Indiquer un incident :" keyboardType="picker" selectedOption={formData.selectedOption} onOptionChange={handleOptionChange} />
+          <Text style={[styles.label, {marginBottom: 40}]}> ᗌ Indiquer le lieu de l'incident :</Text>
 
-      <View style={styles.containerForm} >
-      <FormInput label=" ᗌ Indiquer une alerte :" keyboardType="picker" selectedOption={formData.selectedOption} onOptionChange={handleOptionChange} />
-      
-      <Text style={styles.label}> ᗌ Indiquer un lieu :</Text>  
-      <View style={styles.mapContainer}>
-          <MapView
-              ref={mapRef}
-              style={styles.map}
-              initialRegion={{
-                latitude: 37.78825,
-                longitude: -122.4324,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }}
-              // onPress={handleMapPress} // Ajoutez cet événement
-          >
-            <Marker
-            draggable
-            coordinate={markerPosition}
-            title="marker"
-            // onDragEnd={(e) => {
-            //   setMarkerPosition(e.nativeEvent.coordinate)
-            //   console.log(markerPosition.latitude)}}
-            onDragEnd={handleMapPress}  
-            />
-          </MapView>
-      </View>
+          <View style={styles.mapContainer}>
+            {locationPiker ? (
+              <MapView
+                ref={mapRef}
+                style={styles.map}
+                initialRegion={{
+                  latitude: markerPosition.latitude,
+                  longitude: markerPosition.longitude,
+                  latitudeDelta: 0.0922,
+                  longitudeDelta: 0.0421,
+                }}
+                onPress={handleMapPress}
+              >
+              <Marker
+                draggable
+                coordinate={{
+                  latitude: markerPosition.latitude,
+                  longitude: markerPosition.longitude,
+                }}
+                title={formData.convertedAddress}
+                onDragEnd={handleMapPress}  
+              />
+            </MapView>
+            ) : (
+              <View style={{paddingTop: 50}}>
+                <ImageViewer placeholderImageSource={PlaceholderImageLoading}/>
+              </View>
+            )}  
+          </View>
       
       {/* Affichage des coordonnées actuelles */}
-      {markerPosition.latitude !== "" && markerPosition.longitude !== "" && (
+      {locationPiker && (
         <View>
+          <TouchableOpacity style={styles.resetButton} onPress={handleResetPosition}>
+            <Text style={{color:"white"}}>Ma position</Text>
+          </TouchableOpacity>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.label}>Latitude :</Text>
             <Text style={[styles.dateHeureText, {color: "red"}]}>{markerPosition.latitude}</Text>
@@ -413,24 +479,31 @@ const handleMapPress = async (event) => {
             <Text style={styles.label}>Longitude :</Text>
             <Text style={[styles.dateHeureText, {color: "red"}]}>{markerPosition.longitude}</Text>
           </View>
+          
+          {formData.convertedAddress && (
+            <View style={{backgroundColor:""}}>  
           <Text style={styles.label}> ᗌ Adresse :</Text>
           <Text style={[styles.adressText, {fontWeight: 'bold'}]}>{formData.convertedAddress}</Text>
+          </View>
+          )}
+          
+         
         </View>
-      )}
+       )}
       <View>
 
-      <Text style={styles.label}> ᗌ Capture écran :</Text>  
+      <Text style={styles.label}> ᗌ Capture écran de l'incident :</Text>  
       <CameraScreen/>
       </View>  
 
       <View style={styles.infoContainer}>
-      <FormInput label=" ᗌ Message :" value={formData.message} onChangeText={setMessage} multiline={true} numberOfLines={4} />
+      <FormInput label=" ᗌ A propos de l'incident :" value={formData.message} onChangeText={setMessage} multiline={true} numberOfLines={4} inputType="text" />
       
       {/* Bloc choix de la date */}
-      <View style={styles.dateContainer}>
+      <View style={[styles.dateContainer]}>
         {!showPiker && (
         <Pressable onPress={toggledatePiker} >
-        <FormInput label=" ᗌ Date :" value={formData.date} onChangeText={setDate} inputType="date" toggledatePiker={toggledatePiker}/>
+        <FormInput label=" ᗌ Date incident :" value={formData.date} onChangeText={setDate} inputType="date" toggledatePiker={toggledatePiker}/>
         </Pressable>  
         )}
         
@@ -445,7 +518,7 @@ const handleMapPress = async (event) => {
             <Text style={[styles.buttonText]}>Cancel</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style= {[styles.button, styles.pickerButton]} onPress={confirmIOSDate} >
+          <TouchableOpacity style= {[styles.button, styles.pickerButton, {backgroundColor: "#075985"}]} onPress={confirmIOSDate} >
             <Text style={[styles.buttonText, {color: "#fff"}]}>Enter</Text>
           </TouchableOpacity>
         </View>
@@ -458,7 +531,7 @@ const handleMapPress = async (event) => {
       <View style={styles.heureContainer}>
         {!showTimePicker && (
           <Pressable onPress={toggleTimePicker} >
-          <FormInput label=" ᗌ Heure :" value={formData.heure} onChangeText={setHeure} inputType="time" toggleTimePiker={toggleTimePicker}/>
+          <FormInput label=" ᗌ Heure incident:" value={formData.heure} onChangeText={setHeure} inputType="time" toggleTimePiker={toggleTimePicker}/>
           </Pressable>  
         )}
 
@@ -469,11 +542,11 @@ const handleMapPress = async (event) => {
         {showTimePicker && Platform.OS === "ios" && (
         <View style= {{flexDirection: "row", justifyContent:"space-around"}}>
 
-          <TouchableOpacity style= {[styles.button, , {backgroundColor: "#11182711"}]} onPress={toggleTimePicker} >
+          <TouchableOpacity style= {[styles.button,styles.pickerButton , {backgroundColor: "#11182711"}]} onPress={toggleTimePicker} >
             <Text style={[styles.buttonText]}>Cancel</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style= {[styles.button, styles.pickerButton]} onPress={confirmIOSTime} >
+          <TouchableOpacity style= {[styles.button, styles.pickerButton, {backgroundColor: "#075985"}]} onPress={confirmIOSTime} >
             <Text style={[styles.buttonText, {color: "#fff"}]}>Enter</Text>
           </TouchableOpacity>
         </View>
@@ -483,19 +556,21 @@ const handleMapPress = async (event) => {
       </View>
       </View>
       
-           
-      <FormInput label=" ᗌ Nom :" value={formData.nom} onChangeText={setNom} inputType="text"/>
-      <FormInput label=" ᗌ Prénom :" value={formData.prenom} onChangeText={setPrenom} inputType="text"/>
-      <FormInput label=" ᗌ Adresse :" value={formData.adresse} onChangeText={setAdresse} inputType="text"/>
-      <FormInput label=" ᗌ Code postale :" value={formData.cp} onChangeText={setCp} inputType="number"/>
-      <FormInput label=" ᗌ Ville :" value={formData.ville} onChangeText={setVille} inputType="text"/>
-      <FormInput label=" ᗌ Telephone :" value={formData.tel} onChangeText={setTel} inputType="number"/>
-      <FormInput label=" ᗌ Email :" value={formData.email} onChangeText={setEmail} keyboardType="email-address" />
+        <View style={styles.containerInfoPerso} >
+          <Text style={styles.titre1}>Informations personnelles</Text>     
+          <FormInput label=" ᗌ Nom :" value={formData.nom} onChangeText={setNom} inputType="text"/>
+          <FormInput label=" ᗌ Prénom :" value={formData.prenom} onChangeText={setPrenom} inputType="text"/>
+          <FormInput label=" ᗌ Adresse :" value={formData.adresse} onChangeText={setAdresse} inputType="text"/>
+          <FormInput label=" ᗌ Code postale :" value={formData.cp} onChangeText={setCp} inputType="number"/>
+          <FormInput label=" ᗌ Ville :" value={formData.ville} onChangeText={setVille} inputType="text"/>
+          <FormInput label=" ᗌ Telephone :" value={formData.tel} onChangeText={setTel} inputType="number"/>
+          <FormInput label=" ᗌ Email :" value={formData.email} onChangeText={setEmail} keyboardType="email-address" />
+        </View>
       </View> 
 
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Button label="Retour" theme="backToHome" />
-        <Button label="Valider" onPress={handleValidation} />
+        <Button  label="Valider" onPress={handleValidation} />
       </View>
       
       </ImageProvider>
@@ -507,10 +582,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    // backgroundColor: "rgb(2,0,36)",
   },
   containerForm: {
     marginBottom: 50
+  },
+  containerInfoPerso: {
+    backgroundColor:"#e6e8e9",
+    borderRadius: 10
   },
   label: {
     fontSize: 22,
@@ -533,6 +611,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingTop: 5
   },
+  titre1:{
+    fontSize: 25,
+    height: 50,
+    marginBottom: 50,
+    color:"black",
+    marginTop: 40,
+    textDecorationLine: 'underline',
+    paddingLeft: 10
+  },
   button: {
     height:50,
     justifyContent: "center",
@@ -540,7 +627,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginTop: 10,
     marginBottom: 15,
-    backgroundColor: "#075985"
+    backgroundColor: "#075985",
+    width: 150
   },
   buttonText: {
     fontSize: 14,
@@ -555,10 +643,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     padding: 10,
     color: "#94bbe9",
-    borderWidth: 2, 
-    borderColor: "black", 
-    borderRadius: 10,
-    marginBottom: 50
+    marginBottom: 50,
   },
   imageContainer: {
     height: 10,
@@ -593,11 +678,26 @@ const styles = StyleSheet.create({
     backgroundColor:"white"
   },
   infoContainer : {
-    // backgroundColor: "gray"
     marginTop: 40,
   },
   labelLieu: {
     fontSize: 20,
     textAlign: "left"
+  },
+  btnDateActu: {
+    flex: 1,
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  resetButton:{
+    height:50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+    marginTop: 20,
+    marginBottom: 10,
+    backgroundColor: "#075985",
+    width: 150,
   }
 });

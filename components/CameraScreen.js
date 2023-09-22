@@ -40,6 +40,8 @@ export default function CameraScreen() {
         console.log(photo.uri); // Chemin de la photo capturée
         setCapturedImage(photo.uri); // Stockez le chemin de la photo capturée
         alert("Capture d'écran enregistrée")
+        console.log(setCapturedImage(photo.uri))
+        console.log("photo")
       }
     };
 

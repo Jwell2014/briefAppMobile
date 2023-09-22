@@ -25,7 +25,7 @@ export default function FormInput({
         inputType === "date" ? (
           // Afficher un champ de date avec le type approprié
           <TextInput
-            style={styles.input}
+            style={[styles.input, {backgroundColor:"#e6e8e9"}]}
             value={value}
             onChangeText={onChangeText}
             keyboardType="numeric"
@@ -38,7 +38,7 @@ export default function FormInput({
         ) : inputType === "time" ? (
           // Afficher un champ d'heure avec le type approprié
           <TextInput
-            style={styles.input}
+            style={[styles.input, {backgroundColor:"#e6e8e9"}]}
             value={value}
             onChangeText={onChangeText}
             keyboardType="numeric"
@@ -69,6 +69,7 @@ export default function FormInput({
         <TextInput
           style={styles.input}
           value={value}
+          placeholder={label}
           onChangeText={onChangeText}
           keyboardType={inputType === "number" ? "numeric" : "default"}
           multiline={multiline}
@@ -94,7 +95,8 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 5,
     padding: 10,
-    margin: 10
+    margin: 10,
+    backgroundColor: "#fff"
   },
 
 });

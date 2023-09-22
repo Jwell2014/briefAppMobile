@@ -19,7 +19,7 @@ export default function Button({ label, theme, onPress }) {
 
   } else if (theme === "backToHome") { // Ajoutez une condition pour le bouton "Retour à l'accueil"
     return (
-      <View style={[styles.buttonContainerBackToHome, { borderWidth: 4, borderColor: "black", borderRadius: 18 }]}>
+      <View style={[styles.buttonContainerBackToHome, {backgroundColor: "#11182711" }]}>
         <Link href="/" asChild>
           <Pressable>
             <Text style={[{fontSize: 25}]}>{label}</Text>
@@ -29,17 +29,17 @@ export default function Button({ label, theme, onPress }) {
     );
   }else if (theme === "currentDate") { // Ajoutez un thème pour le bouton "Date actuelle"
     return (
-      <View style={[styles.buttonContainerDate, { borderWidth: 4, borderColor: "black", borderRadius: 10 }]}>
+      <View style={[styles.buttonContainerDate]}>
         <Pressable onPress={onPress}>
-          <Text style={[styles.text2]}>{label}</Text>
+          <Text style={[styles.text2, {color: "#fff"}]}>{label}</Text>
         </Pressable>
       </View>
     );
   }else {
     return (
-      <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "black", borderRadius: 18 }]}>
+      <View style={[styles.buttonContainer]}>
         <Pressable onPress={onPress}>
-          <Text style={[{fontSize: 25}]}>{label}</Text>
+          <Text style={[{fontSize: 25,color: "#fff"}]}>{label}</Text>
         </Pressable>
       </View>
     );
@@ -48,22 +48,25 @@ export default function Button({ label, theme, onPress }) {
 
 const styles = StyleSheet.create({
   buttonContainer: {
+    height:50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+    marginTop: 10,
+    marginBottom: 100,
+    backgroundColor: "#075985",
     width: 150,
-    height: 68,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 3,
-    marginBottom: 20
   },
   buttonContainerBackToHome: {
+    height:50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+    marginTop: 10,
+    marginBottom: 100,
+    backgroundColor: "#075985",
     width: 150,
-    height: 68,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 3,
-    marginBottom: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 20
   },
   buttonContainerRouter: {
     width: 320,
@@ -75,13 +78,13 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   buttonContainerDate: {
-    width: 120,
-    height: 40,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 3,
-    marginBottom: 20
+    height:50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+    marginBottom: 20,
+    backgroundColor: "#075985",
+    width: 150,
   },
   text:{
     color:'white',

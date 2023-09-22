@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "scheme": "your-app-scheme",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/2.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -35,7 +35,7 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/images/1.png",
       "bundler": "metro"
     },
     "plugins": [

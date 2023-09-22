@@ -8,6 +8,7 @@ import { ImageProvider } from '../contexte/ImageContext';
 
 export default function Page() {
   const PlaceholderImage = require('../assets/images/accueil.jpeg');
+
   return (
     <ImageProvider>
     <View style={styles.container}>
