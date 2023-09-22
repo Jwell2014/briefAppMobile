@@ -1,5 +1,7 @@
 # briefAppMobile
 Creation of a mobile app React Native Expo form alert
+
+
 👋 Hey les ami.es, vous connaissez la dernière nouvelle ? 🤔 Vraiment ? Eh bien j'ai été élu Maire avec 99,9% de voix des Alumnis et Simplonien.es (merci Cambridge Analytica 💰💰💰), eh ouais ma gueule.....euh enfin OUI mes chèr.es concitoyen.es 🇫🇷🥖.
 
 Et en tant que Maire de Simplonville, je souhaite développer des outils numériques accessibles par toutes & tous.
